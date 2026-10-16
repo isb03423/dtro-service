@@ -23,21 +23,21 @@ public class Complaint {
     @Column(name = "complaint_id")
     private Long id;
 
-    @Column(nullable = false, length = 200)
+    @Column(name = "title", nullable = false, length = 200)
     private String title;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(name = "content", nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    @Column(nullable = false, length = 30)
+    @Column(name = "station", nullable = false, length = 30)
     private String station;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 30)
+    @Column(name = "type", nullable = false, length = 30)
     private ComplaintType type;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 30)
+    @Column(name = "status", nullable = false, length = 30)
     private ComplaintStatus status = ComplaintStatus.PENDING;
 
     @Column(name = "reply_content", columnDefinition = "TEXT")
@@ -59,7 +59,25 @@ public class Complaint {
     @Column(name = "updated_by")
     private Long updatedBy;
 
-    public void complaintAnswered() {
+    public Complaint(String title, String content, String station, ComplaintType type) {
+        this.title = title;
+        this.content = content;
+        this.station = station;
+        this.type = type;
+    }
+
+    public void complaintAnswered(String replyContent) {
+        if (this.status == ComplaintStatus.ANSWERED) {
+            throw new IllegalStateException("이미 답변한 민원입니다.");
+        }
+        this.replyContent = replyContent;
         this.status = ComplaintStatus.ANSWERED;
+    }
+
+    public void updateReply(String replyContent) {
+        if (this.status != ComplaintStatus.ANSWERED) {
+            throw new IllegalStateException("등록된 답변이 없습니다.");
+        }
+        this.replyContent = replyContent;
     }
 }
