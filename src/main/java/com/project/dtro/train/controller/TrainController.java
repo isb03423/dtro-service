@@ -26,7 +26,6 @@ public class TrainController {
     public ApiResponse<TrainPageResponse> search(@Valid @RequestBody TrainSearchRequest request) {
         return ApiResponse.ok(
                 service.search(
-                        request.getLineName(),
                         request.getStatus(),
                         request.getKeyword(),
                         request.getPage(),

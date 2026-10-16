@@ -20,14 +20,14 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class TrainService {
-    private static final Set<String> SORT_FIELDS = Set.of("id", "trainNumber", "formationName", "lineName", "status", "lastInspectedOn", "updatedAt");
+    private static final Set<String> SORT_FIELDS = Set.of("id", "trainNumber", "formationName", "status", "lastInspectedOn", "updatedAt");
 
     private final TrainRepository repository;
     private final NumberGenerator numberGenerator;
 
     // 검색 조건과 페이지·정렬값을 검증해 열차 목록을 조회한다.
     @Transactional(readOnly = true)
-    public TrainPageResponse search(String lineName, TrainStatus status, String keyword, int page, int size, String sort) {
+    public TrainPageResponse search(TrainStatus status, String keyword, int page, int size, String sort) {
         if (page < 0 || size < 1 || size > 100) {
             throw new IllegalArgumentException("페이지 조건이 올바르지 않습니다.");
         }
@@ -41,15 +41,10 @@ public class TrainService {
 
         Sort.Direction direction = Sort.Direction.fromString(parts[1]);
         PageRequest pageable = PageRequest.of(page, size, Sort.by(direction, parts[0]));
-        String requestedLine = blankToNull(lineName);
         String requestedKeyword = blankToNull(keyword);
         // 값이 있는 조건만 모아 AND로 연결해 동적 검색 쿼리를 만든다.
         Specification<Train> filter = (root, query, cb) -> {
             var conditions = new java.util.ArrayList<jakarta.persistence.criteria.Predicate>();
-            if (requestedLine != null) {
-                conditions.add(cb.equal(root.get("lineName"), requestedLine));
-            }
-
             if (status != null) {
                 conditions.add(cb.equal(root.get("status"), status));
             }
@@ -76,18 +71,17 @@ public class TrainService {
     // 입력값으로 열차를 저장하고 생성된 열차번호를 반환한다.
     @Transactional
     public TrainResponse create(TrainRequest request) {
-        String lineName = request.getLineName().trim();
         Train train = new Train(
                 request.getFormationName().trim(),
-                lineName,
                 request.getCarType().trim(),
                 request.getCarCount(),
                 request.getStatus(),
                 request.getIntroducedOn(),
                 request.getLastInspectedOn()
         );
+
         // 열차 ID와 관계없이 해당 호선의 다음 번호를 발급한다.
-        train.assignTrainNumber(numberGenerator.nextNumber(prefixForLine(lineName)));
+        train.assignTrainNumber(numberGenerator.nextNumber("TRN", 4));
         repository.save(train);
         repository.flush();
         return TrainResponse.from(train);
@@ -97,14 +91,9 @@ public class TrainService {
     @Transactional
     public TrainResponse update(Long id, TrainRequest request) {
         Train train = find(id);
-        String lineName = request.getLineName().trim();
-        // 호선을 바꾸면 새 호선의 열차번호를 발급한다.
-        if (!train.getLineName().equals(lineName)) {
-            train.assignTrainNumber(numberGenerator.nextNumber(prefixForLine(lineName)));
-        }
+
         train.update(
                 request.getFormationName().trim(),
-                lineName,
                 request.getCarType().trim(),
                 request.getCarCount(),
                 request.getStatus(),
@@ -125,16 +114,6 @@ public class TrainService {
     // ID에 해당하는 열차를 찾거나 없음 오류를 던진다.
     private Train find(Long id) {
         return repository.findById(id).orElseThrow(TrainNotFoundException::new);
-    }
-
-    // 지원하는 호선을 번호 접두어로 바꾼다.
-    private String prefixForLine(String lineName) {
-        return switch (lineName) {
-            case "1호선" -> "TR1";
-            case "2호선" -> "TR2";
-            case "3호선" -> "TR3";
-            default -> throw new IllegalArgumentException("지원하지 않는 호선입니다.");
-        };
     }
 
     // 공백 문자열을 null로 바꾸고 나머지 문자열은 다듬는다.

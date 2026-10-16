@@ -20,10 +20,6 @@ public class TrainRequest {
     private String formationName;
 
     @NotBlank
-    @Size(max = 30)
-    private String lineName;
-
-    @NotBlank
     @Size(max = 50)
     private String carType;
 
@@ -36,7 +32,7 @@ public class TrainRequest {
 
     @NotNull
     private LocalDate introducedOn;
-    
+
     @NotNull
     private LocalDate lastInspectedOn;
 }

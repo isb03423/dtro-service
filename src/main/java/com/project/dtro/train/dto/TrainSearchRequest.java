@@ -10,7 +10,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class TrainSearchRequest {
-    private String lineName;
     private TrainStatus status;
     private String keyword;
     private int page = 0;
