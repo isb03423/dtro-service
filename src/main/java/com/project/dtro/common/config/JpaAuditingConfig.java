@@ -11,7 +11,7 @@ import java.time.ZoneId;
 import java.util.Optional;
 
 @Configuration
-@EnableJpaAuditing(auditorAwareRef = "auditorAware", dateTimeProviderRef = "auditingDateTimeProvider")
+@EnableJpaAuditing(auditorAwareRef = "auditorAware", dateTimeProviderRef = "auditingDateTimeProvider", modifyOnCreate = false)
 public class JpaAuditingConfig {
     @Bean
     public Clock clock() {

@@ -46,7 +46,7 @@ public class TrainController {
     // 새 열차를 등록하고 생성된 정보를 반환한다.
     public ResponseEntity<ApiResponse<TrainResponse>> create(@Valid @RequestBody TrainRequest request) {
         TrainResponse train = service.create(request);
-        return ResponseEntity.created(URI.create("/api/v1/trains/" + train.getId()))
+        return ResponseEntity.created(URI.create("/api/trains/" + train.getId()))
                 .body(ApiResponse.ok(train));
     }
 
