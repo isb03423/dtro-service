@@ -46,7 +46,7 @@ public class SpringConfig {
                                         "/favicon.ico"
                                 ).permitAll()
                                 .requestMatchers("/api/auth/me").authenticated()
-                                .requestMatchers("/api/v1/trains", "/api/v1/trains/**")
+                                .requestMatchers("/api/trains", "/api/trains/**")
                                 .hasAnyRole("TRAIN_MANAGER", "ADMIN")
                                 // 최고관리자
                                 .requestMatchers("/api/admin/**").hasRole("ADMIN")

@@ -1,36 +1,20 @@
 package com.project.dtro.train.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
+import com.project.dtro.common.domain.AuditEntity;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.AccessLevel;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "trains")
-@EntityListeners(AuditingEntityListener.class)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Train {
+public class Train extends AuditEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "train_id_seq")
-    @SequenceGenerator(name = "train_id_seq", sequenceName = "train_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "train_id")
     private Long id;
 
@@ -59,22 +43,6 @@ public class Train {
     @Column(name = "last_inspected_on", nullable = false)
     private LocalDate lastInspectedOn;
 
-    @CreatedDate
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @CreatedBy
-    @Column(name = "created_by", updatable = false)
-    private Long createdBy;
-
-    @LastModifiedDate
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
-    @LastModifiedBy
-    @Column(name = "updated_by")
-    private Long updatedBy;
-
     // 등록할 열차의 기본 정보를 초기화한다.
     public Train(String formationName, String lineName, String carType,
                  Integer carCount, TrainStatus status, LocalDate introducedOn,
@@ -82,7 +50,7 @@ public class Train {
         update(formationName, lineName, carType, carCount, status, introducedOn, lastInspectedOn);
     }
 
-    // 호선별 발급기에서 만든 열차번호를 저장한다.
+    // 공통 발급기에서 만든 열차번호를 저장한다.
     public void assignTrainNumber(String trainNumber) {
         this.trainNumber = trainNumber;
     }
