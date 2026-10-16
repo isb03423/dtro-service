@@ -38,6 +38,14 @@ public abstract class AuditEntity {
     @JoinColumn(name = "updated_by", referencedColumnName = "id")
     private Member updatedBy;
 
+    public String getCreatedByName() {
+        return createdBy == null ? null : createdBy.getName();
+    }
+
+    public String getUpdatedByName() {
+        return updatedBy == null ? null : updatedBy.getName();
+    }
+
     protected void markUpdatedBy(Member member) {
         this.updatedBy = member;
     }
