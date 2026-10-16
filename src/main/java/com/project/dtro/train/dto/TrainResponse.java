@@ -14,14 +14,15 @@ public class TrainResponse {
     private final Long id;
     private final String trainNumber;
     private final String formationName;
-    private final String lineName;
     private final String carType;
     private final Integer carCount;
     private final TrainStatus status;
     private final LocalDate introducedOn;
     private final LocalDate lastInspectedOn;
     private final LocalDateTime createdAt;
+    private final String createdByName;
     private final LocalDateTime updatedAt;
+    private final String updatedByName;
 
     // 열차 엔티티를 상세 응답 데이터로 변환한다.
     public static TrainResponse from(Train train) {
@@ -29,14 +30,15 @@ public class TrainResponse {
                 train.getId(),
                 train.getTrainNumber(),
                 train.getFormationName(),
-                train.getLineName(),
                 train.getCarType(),
                 train.getCarCount(),
                 train.getStatus(),
                 train.getIntroducedOn(),
                 train.getLastInspectedOn(),
                 train.getCreatedAt(),
-                train.getUpdatedAt()
+                train.getCreatedByName(),
+                train.getUpdatedAt(),
+                train.getUpdatedByName()
         );
     }
 }

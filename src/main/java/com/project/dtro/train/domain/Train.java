@@ -24,9 +24,6 @@ public class Train extends AuditEntity {
     @Column(name = "formation_name", nullable = false, length = 100)
     private String formationName;
 
-    @Column(name = "line_name", nullable = false, length = 30)
-    private String lineName;
-
     @Column(name = "car_type", nullable = false, length = 50)
     private String carType;
 
@@ -44,10 +41,10 @@ public class Train extends AuditEntity {
     private LocalDate lastInspectedOn;
 
     // 등록할 열차의 기본 정보를 초기화한다.
-    public Train(String formationName, String lineName, String carType,
+    public Train(String formationName, String carType,
                  Integer carCount, TrainStatus status, LocalDate introducedOn,
                  LocalDate lastInspectedOn) {
-        update(formationName, lineName, carType, carCount, status, introducedOn, lastInspectedOn);
+        update(formationName, carType, carCount, status, introducedOn, lastInspectedOn);
     }
 
     // 공통 발급기에서 만든 열차번호를 저장한다.
@@ -56,10 +53,9 @@ public class Train extends AuditEntity {
     }
 
     // 수정 가능한 열차 정보를 새 값으로 바꾼다.
-    public void update(String formationName, String lineName, String carType, Integer carCount,
+    public void update(String formationName, String carType, Integer carCount,
                        TrainStatus status, LocalDate introducedOn, LocalDate lastInspectedOn) {
         this.formationName = formationName;
-        this.lineName = lineName;
         this.carType = carType;
         this.carCount = carCount;
         this.status = status;
