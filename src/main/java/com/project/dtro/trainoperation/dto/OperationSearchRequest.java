@@ -1,0 +1,15 @@
+package com.project.dtro.trainoperation.dto;
+
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public class OperationSearchRequest {
+    private Long trainId;
+    private String lineCode;
+    private String direction;
+    private int page = 0;
+    private int size = 20;
+    private String sort = "id,desc";
+}
