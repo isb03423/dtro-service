@@ -3,10 +3,12 @@ package com.project.dtro.common.number;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionTemplate;
 
 @Component
+@Order(1)
 @RequiredArgsConstructor
 public class NumberCounterInitializer implements ApplicationRunner {
     private final TransactionTemplate transactions;
