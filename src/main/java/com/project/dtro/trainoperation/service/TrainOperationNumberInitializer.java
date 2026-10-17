@@ -20,6 +20,7 @@ public class TrainOperationNumberInitializer implements ApplicationRunner {
 
     @Override
     @Transactional
+    // 기존 개발 데이터의 누락된 운행번호와 번호 자릿수를 정리한다.
     public void run(ApplicationArguments args) {
         for (var operation : operations.findByOperationNumberIsNullOrderByIdAsc()) {
             operations.setOperationNumber(operation.getId(), numberGenerator.nextNumber("OPS", 5));

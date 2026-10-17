@@ -44,15 +44,18 @@ public class TrainOperation extends AuditEntity {
     @Column(name = "last_train_time", nullable = false)
     private LocalTime lastTrainTime;
 
+    // 등록할 운행정보의 기본 항목을 초기화한다.
     public TrainOperation(Train train, String lineCode, Station departureStation,
                           Station arrivalStation, LocalTime firstTrainTime, LocalTime lastTrainTime) {
         update(train, lineCode, departureStation, arrivalStation, firstTrainTime, lastTrainTime);
     }
 
+    // 공통 발급기에서 만든 운행번호를 저장한다.
     public void assignOperationNumber(String operationNumber) {
         this.operationNumber = operationNumber;
     }
 
+    // 수정 가능한 운행정보를 새 값으로 바꾼다.
     public void update(Train train, String lineCode, Station departureStation,
                        Station arrivalStation, LocalTime firstTrainTime, LocalTime lastTrainTime) {
         this.train = train;
