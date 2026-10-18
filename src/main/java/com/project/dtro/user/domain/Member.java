@@ -27,6 +27,12 @@ public class Member extends AuditEntity {
     @Column(nullable = false, length = 50)
     private String name;
 
+    @Column(length = 254)
+    private String email;
+
+    @Column(length = 30)
+    private String phone;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
     @Builder.Default
@@ -36,11 +42,20 @@ public class Member extends AuditEntity {
     @Builder.Default
     private boolean enabled = true;
 
-    public void updateDevAccount(String encodedPassword, String name, MemberRole role) {
-        this.password = encodedPassword;
+    public void updateProfile(String name, String email, String phone) {
         this.name = name;
-        this.role = role;
-        this.enabled = true;
-        markUpdatedBy(this);
+        this.email = email;
+        this.phone = phone;
     }
+
+    public void changePassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
+
+    public void updateByAdmin(String name, String email, String phone, MemberRole role, boolean enabled) {
+        updateProfile(name, email, phone);
+        this.role = role;
+        this.enabled = enabled;
+    }
+
 }

@@ -1,5 +1,7 @@
 package com.project.dtro.common.config;
 
+import com.project.dtro.security.MemberSessionRefreshFilter;
+import com.project.dtro.user.repository.MemberRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -9,6 +11,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 
 @Configuration
 @EnableMethodSecurity
@@ -21,8 +24,9 @@ public class SpringConfig {
     }
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain securityFilterChain(HttpSecurity http, MemberRepository members) throws Exception {
         http
+                .addFilterBefore(new MemberSessionRefreshFilter(members), AuthorizationFilter.class)
                 // CORS 설정
                 .cors(Customizer.withDefaults())
                 // Vue SPA용 CSRF 보호
@@ -38,7 +42,7 @@ public class SpringConfig {
                                         "/",
                                         "/api/auth/login",
                                         "/api/auth/csrf",
-//                                "/api/members",
+                                        "/api/members",
                                         "/css/**",
                                         "/js/**",
                                         "/images/**",
@@ -46,7 +50,7 @@ public class SpringConfig {
                                         "/favicon.ico"
                                 ).permitAll()
                                 .requestMatchers("/api/auth/me").authenticated()
-                                .requestMatchers("/api/trains", "/api/trains/**")
+                                .requestMatchers("/api/trains", "/api/trains/**", "/api/train-overview")
                                 .hasAnyRole("TRAIN_MANAGER", "ADMIN")
                                 // 최고관리자
                                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
