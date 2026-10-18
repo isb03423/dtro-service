@@ -1,6 +1,7 @@
 package com.project.dtro.incident.repository;
 
 import com.project.dtro.incident.domain.Incident;
+import com.project.dtro.incident.domain.IncidentStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -17,6 +18,7 @@ import java.util.Optional;
 
 @Repository
 public interface IncidentRepository extends JpaRepository<Incident, Long>, JpaSpecificationExecutor<Incident> {
+    long countByStatus(IncidentStatus status);
     List<Incident> findByIncidentNumberIsNullOrderByIdAsc();
 
     @Modifying
