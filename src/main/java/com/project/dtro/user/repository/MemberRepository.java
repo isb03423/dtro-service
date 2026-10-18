@@ -13,6 +13,8 @@ import java.util.Optional;
 public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByUserid(String userid);
 
+    boolean existsByUserid(String userid);
+
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query(value = "UPDATE users SET created_by = id WHERE userid IN (:userids) AND created_by IS DISTINCT FROM id", nativeQuery = true)
     int setOwnCreatorForDevAccounts(List<String> userids);
