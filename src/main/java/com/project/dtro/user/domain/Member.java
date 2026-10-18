@@ -52,11 +52,10 @@ public class Member extends AuditEntity {
         this.password = encodedPassword;
     }
 
-    public void updateDevAccount(String encodedPassword, String name, MemberRole role) {
-        this.password = encodedPassword;
-        this.name = name;
+    public void updateByAdmin(String name, String email, String phone, MemberRole role, boolean enabled) {
+        updateProfile(name, email, phone);
         this.role = role;
-        this.enabled = true;
-        markUpdatedBy(this);
+        this.enabled = enabled;
     }
+
 }

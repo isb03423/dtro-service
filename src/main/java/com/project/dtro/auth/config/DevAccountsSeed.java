@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -26,6 +27,7 @@ public class DevAccountsSeed {
 
     // 서버 시작 시 개발용 계정 3개를 준비한다.
     @Bean
+    @Order(2)
     ApplicationRunner seedDevAccounts() {
         return args -> {
             List<SeedAccount> accounts = List.of(
@@ -42,20 +44,10 @@ public class DevAccountsSeed {
         };
     }
 
-    // 이미 설정이 맞는 계정은 다시 저장하지 않아 수정 이력을 만들지 않는다.
+    // 개발용 계정은 처음에만 생성한다. 이후 관리자 변경 사항을 재시작 때 덮어쓰지 않는다.
     private void seed(SeedAccount account) {
         var existing = members.findByUserid(account.username());
         if (existing.isPresent()) {
-            Member member = existing.get();
-            if (member.getName().equals(account.name())
-                    && member.getRole() == account.role()
-                    && member.isEnabled()
-                    && passwords.matches(DEV_PASSWORD, member.getPassword())) {
-                return;
-            }
-            member.updateDevAccount(passwords.encode(DEV_PASSWORD), account.name(), account.role());
-            members.save(member);
-            log.info("개발용 {} 계정을 갱신했습니다: {}", account.role(), account.username());
             return;
         }
 
