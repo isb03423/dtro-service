@@ -32,7 +32,7 @@ public class ComplaintResponse {
                 complaint.getStatus(),
                 complaint.getReplyContent(),
                 complaint.getCreatedAt(),
-                complaint.getCreatedBy(),
+                complaint.getCreatedBy() == null ? null : complaint.getCreatedBy().getId(),
                 complaint.getUpdatedAt()
         );
     }

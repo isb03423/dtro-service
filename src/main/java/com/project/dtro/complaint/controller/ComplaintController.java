@@ -6,6 +6,7 @@ import com.project.dtro.complaint.service.ComplaintService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -30,6 +31,7 @@ public class ComplaintController {
         );
     }
 
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("")
     public ResponseEntity<ApiResponse<ComplaintResponse>> create(@Valid @RequestBody ComplaintRequest request) {
         ComplaintResponse complaint = complaintService.create(request);
@@ -43,6 +45,7 @@ public class ComplaintController {
         return ApiResponse.ok(complaintService.get(id));
     }
 
+    @PreAuthorize("isAuthenticated() and !hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ApiResponse<ComplaintResponse> update(
             @PathVariable Long id,
@@ -59,6 +62,7 @@ public class ComplaintController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}")
     public ApiResponse<ComplaintResponse> answer(
             @PathVariable Long id,

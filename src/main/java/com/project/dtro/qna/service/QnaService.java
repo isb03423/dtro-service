@@ -5,6 +5,7 @@ import com.project.dtro.qna.domain.QnaStatus;
 import com.project.dtro.qna.domain.QnaType;
 import com.project.dtro.qna.dto.QnaAnswerRequest;
 import com.project.dtro.qna.dto.QnaPageResponse;
+import com.project.dtro.qna.dto.QnaOverviewResponse;
 import com.project.dtro.qna.dto.QnaRequest;
 import com.project.dtro.qna.dto.QnaResponse;
 import com.project.dtro.qna.repository.QnaRepository;
@@ -15,6 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +28,21 @@ public class QnaService {
             Set.of("id", "title", "station", "type", "status", "createdAt", "updatedAt");
 
     private final QnaRepository qnaRepository;
+
+    // 집계와 최근 5건만 조회하며 전체 목록을 메모리에 적재하지 않는다.
+    public QnaOverviewResponse getOverview() {
+        Map<QnaStatus, Long> counts = new EnumMap<>(QnaStatus.class);
+        for (QnaStatus status : QnaStatus.values()) {
+            counts.put(status, qnaRepository.countByStatus(status));
+        }
+        PageRequest pageable = PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "createdAt", "id"));
+        List<QnaOverviewResponse.RecentQna> recent = qnaRepository.findAll(pageable)
+                .getContent().stream()
+                .map(item -> new QnaOverviewResponse.RecentQna(item.getId(), item.getTitle(),
+                        item.getStation(), item.getStatus(), item.getCreatedAt()))
+                .toList();
+        return new QnaOverviewResponse(Map.copyOf(counts), recent);
+    }
 
     public QnaPageResponse search(
             QnaType type,

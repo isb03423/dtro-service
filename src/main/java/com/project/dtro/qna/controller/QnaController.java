@@ -6,6 +6,7 @@ import com.project.dtro.qna.service.QnaService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -30,6 +31,7 @@ public class QnaController {
         );
     }
 
+    @PreAuthorize("hasAnyRole('USER', 'TRAIN_MANAGER') and !hasRole('ADMIN')")
     @PostMapping("")
     public ResponseEntity<ApiResponse<QnaResponse>> create(@Valid @RequestBody QnaRequest request) {
         QnaResponse qna = qnaService.create(request);

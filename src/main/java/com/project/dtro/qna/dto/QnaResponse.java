@@ -32,7 +32,7 @@ public class QnaResponse {
                 qna.getStatus(),
                 qna.getReplyContent(),
                 qna.getCreatedAt(),
-                qna.getCreatedBy(),
+                qna.getCreatedBy() == null ? null : qna.getCreatedBy().getId(),
                 qna.getUpdatedAt()
         );
     }
