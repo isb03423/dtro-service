@@ -66,6 +66,13 @@ public class Complaint {
         this.type = type;
     }
 
+    public void update(String title, String content, String station, ComplaintType type) {
+        this.title = title;
+        this.content = content;
+        this.station = station;
+        this.type = type;
+    }
+
     public void complaintAnswered(String replyContent) {
         if (this.status == ComplaintStatus.ANSWERED) {
             throw new IllegalStateException("이미 답변한 민원입니다.");

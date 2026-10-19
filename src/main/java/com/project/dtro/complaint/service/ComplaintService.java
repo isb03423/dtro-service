@@ -79,6 +79,19 @@ public class ComplaintService {
     }
 
     @Transactional
+    public ComplaintResponse update(Long id, ComplaintRequest request) {
+        Complaint complaint = find(id);
+        complaint.update(
+                request.getTitle().trim(),
+                request.getContent().trim(),
+                request.getStation().trim(),
+                request.getType()
+        );
+        complaintRepository.flush();
+        return ComplaintResponse.from(complaint);
+    }
+
+    @Transactional
     public ComplaintResponse answer(Long id, ComplaintAnswerRequest request) {
         Complaint complaint = find(id);
         complaint.complaintAnswered(request.getReplyContent().trim());

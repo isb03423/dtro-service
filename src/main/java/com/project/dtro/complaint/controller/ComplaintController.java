@@ -43,6 +43,14 @@ public class ComplaintController {
         return ApiResponse.ok(complaintService.get(id));
     }
 
+    @PutMapping("/{id}")
+    public ApiResponse<ComplaintResponse> update(
+            @PathVariable Long id,
+            @Valid @RequestBody ComplaintRequest request
+    ) {
+        return ApiResponse.ok(complaintService.update(id, request));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(
             @PathVariable Long id
