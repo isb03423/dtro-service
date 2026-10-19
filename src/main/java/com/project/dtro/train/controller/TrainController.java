@@ -4,6 +4,7 @@ import com.project.dtro.common.response.ApiResponse;
 import com.project.dtro.train.dto.TrainPageResponse;
 import com.project.dtro.train.dto.TrainRequest;
 import com.project.dtro.train.dto.TrainResponse;
+import com.project.dtro.train.dto.TrainSaveRequest;
 import com.project.dtro.train.dto.TrainSearchRequest;
 import com.project.dtro.train.service.TrainService;
 import jakarta.validation.Valid;
@@ -13,6 +14,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/trains")
@@ -47,6 +49,19 @@ public class TrainController {
         TrainResponse train = service.create(request);
         return ResponseEntity.created(URI.create("/api/trains/" + train.getId()))
                 .body(ApiResponse.ok(train));
+    }
+
+    @PutMapping
+    // 목록에서 추가·수정한 열차 행을 일괄 저장한다.
+    public ApiResponse<List<TrainResponse>> save(@Valid @RequestBody TrainSaveRequest request) {
+        return ApiResponse.ok(service.save(request));
+    }
+
+    @DeleteMapping
+    // 목록에서 선택한 열차를 일괄 삭제한다.
+    public ApiResponse<Void> delete(@RequestBody List<Long> ids) {
+        service.delete(ids);
+        return ApiResponse.ok(null);
     }
 
     @PutMapping("/{trainId}")
