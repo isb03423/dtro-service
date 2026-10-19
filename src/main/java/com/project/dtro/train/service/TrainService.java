@@ -6,6 +6,8 @@ import com.project.dtro.train.domain.TrainStatus;
 import com.project.dtro.train.dto.TrainPageResponse;
 import com.project.dtro.train.dto.TrainRequest;
 import com.project.dtro.train.dto.TrainResponse;
+import com.project.dtro.train.dto.TrainRowRequest;
+import com.project.dtro.train.dto.TrainSaveRequest;
 import com.project.dtro.train.repository.TrainRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -14,13 +16,16 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class TrainService {
-    private static final Set<String> SORT_FIELDS = Set.of("id", "trainNumber", "formationName", "status", "lastInspectedOn", "updatedAt");
+    private static final Set<String> SORT_FIELDS = Set.of("id", "trainNumber", "formationName", "carType",
+            "carCount", "status", "introducedOn", "lastInspectedOn", "createdAt", "updatedAt");
 
     private final TrainRepository repository;
     private final NumberGenerator numberGenerator;
@@ -102,6 +107,27 @@ public class TrainService {
         );
         repository.flush();
         return TrainResponse.from(train);
+    }
+
+    // 목록에서 변경한 열차를 하나의 트랜잭션으로 저장한다.
+    @Transactional
+    public List<TrainResponse> save(TrainSaveRequest request) {
+        List<TrainResponse> saved = new ArrayList<>();
+        for (TrainRowRequest row : request.getRows()) {
+            saved.add(row.getId() == null ? create(row) : update(row.getId(), row));
+        }
+        return saved;
+    }
+
+    // 선택한 열차를 모두 확인한 뒤 하나의 트랜잭션으로 삭제한다.
+    @Transactional
+    public void delete(List<Long> ids) {
+        if (ids == null || ids.isEmpty() || ids.stream().anyMatch(id -> id == null || id < 1)) {
+            throw new IllegalArgumentException("삭제할 열차를 선택해주세요.");
+        }
+        for (Long id : ids) {
+            delete(id);
+        }
     }
 
     // 열차가 존재하는지 확인한 뒤 삭제한다.
