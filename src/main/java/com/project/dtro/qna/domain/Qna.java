@@ -44,6 +44,9 @@ public class Qna extends AuditEntity {
     }
 
     public void update(String title, String content, String station, QnaType type) {
+        if (this.status != QnaStatus.PENDING) {
+            throw new IllegalStateException("답변 대기 상태에서만 질문을 수정할 수 있습니다.");
+        }
         this.title = title;
         this.content = content;
         this.station = station;

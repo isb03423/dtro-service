@@ -86,7 +86,10 @@ public class ComplaintService {
     }
 
     public ComplaintResponse get(Long id) {
-        return ComplaintResponse.from(find(id));
+        MemberPrincipal member = currentMember();
+        Complaint complaint = find(id);
+        checkReadAccess(complaint, member);
+        return ComplaintResponse.from(complaint);
     }
 
     @Transactional
@@ -132,7 +135,17 @@ public class ComplaintService {
 
     @Transactional
     public void delete(Long id) {
-        complaintRepository.delete(find(id));
+        MemberPrincipal member = currentMember();
+        Complaint complaint = find(id);
+        checkReadAccess(complaint, member);
+        complaintRepository.delete(complaint);
+    }
+
+    private void checkReadAccess(Complaint complaint, MemberPrincipal member) {
+        if (!isAdmin(member) && (complaint.getCreatedBy() == null
+                || !member.getMemberId().equals(complaint.getCreatedBy().getId()))) {
+            throw new AccessDeniedException("작성자 본인과 관리자만 접근할 수 있습니다.");
+        }
     }
 
     private String blankToNull(String text) {

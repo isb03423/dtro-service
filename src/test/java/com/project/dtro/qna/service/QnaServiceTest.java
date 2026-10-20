@@ -17,6 +17,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
 import java.util.List;
+import com.project.dtro.security.MemberPrincipal;
+import com.project.dtro.user.domain.Member;
+import org.junit.jupiter.api.AfterEach;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.test.util.ReflectionTestUtils;
+
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -109,6 +117,7 @@ class QnaServiceTest {
     void givenMissingQuestion_whenGetAnswerOrDelete_thenReject() {
         QnaAnswerRequest answer = new QnaAnswerRequest();
         answer.setReplyContent("문의하신 내용을 안내드립니다.");
+        login(10L, "ADMIN");
         when(qnaRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThrows(IllegalArgumentException.class, () -> service.get(99L));
@@ -123,6 +132,7 @@ class QnaServiceTest {
         answer.setReplyContent("  문의하신 내용을 안내드립니다.  ");
         when(qnaRepository.findById(1L)).thenReturn(Optional.of(qna));
 
+        login(10L, "ADMIN");
         var result = service.answer(1L, answer);
 
         assertEquals(QnaStatus.ANSWERED, result.getStatus());
@@ -135,8 +145,19 @@ class QnaServiceTest {
         Qna qna = new Qna("시설 이용 문의", "시설 이용 방법", "반월당", QnaType.FACILITY);
         when(qnaRepository.findById(1L)).thenReturn(Optional.of(qna));
 
+        login(10L, "ADMIN");
         service.delete(1L);
 
         verify(qnaRepository).delete(qna);
     }
+    @AfterEach
+    void clearAuthentication() { SecurityContextHolder.clearContext(); }
+
+    private void login(Long id, String role) {
+        var authorities = java.util.List.of(new SimpleGrantedAuthority("ROLE_" + role));
+        var member = new MemberPrincipal(id, "test", "unused", true, authorities);
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(member, null, authorities));
+    }
+
 }

@@ -61,6 +61,7 @@ public class QnaController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}")
     public ApiResponse<QnaResponse> answer(
             @PathVariable Long id,
@@ -69,5 +70,14 @@ public class QnaController {
         return ApiResponse.ok(
                 qnaService.answer(id, request)
         );
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/{id}/answer")
+    public ApiResponse<QnaResponse> updateAnswer(
+            @PathVariable Long id,
+            @Valid @RequestBody QnaAnswerRequest request
+    ) {
+        return ApiResponse.ok(qnaService.updateAnswer(id, request));
     }
 }

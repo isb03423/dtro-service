@@ -3,6 +3,7 @@ package com.project.dtro.common.config;
 import com.project.dtro.security.MemberSessionRefreshFilter;
 import com.project.dtro.user.repository.MemberRepository;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -53,6 +54,9 @@ public class SpringConfig {
                                 .requestMatchers("/api/v1/customer-service-overview").hasRole("ADMIN")
                                 .requestMatchers("/api/trains", "/api/trains/**", "/api/train-overview")
                                 .hasAnyRole("TRAIN_MANAGER", "ADMIN")
+                                // 목록은 공개하고 개별 글의 접근은 서비스에서 작성자/관리자를 확인한다.
+                                .requestMatchers(HttpMethod.GET, "/api/complaints", "/api/qnas").permitAll()
+                                .requestMatchers("/api/complaints/**", "/api/qnas/**").authenticated()
                                 // 최고관리자
                                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                                 // 로그인 필요
