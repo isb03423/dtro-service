@@ -22,6 +22,16 @@ public class ComplaintResponse {
     private final Long createdBy;
     private final LocalDateTime updatedAt;
 
+    // 공개 목록에는 본문과 답변을 포함하지 않는다.
+    public static ComplaintResponse summary(Complaint complaint) {
+        return new ComplaintResponse(
+                complaint.getId(), complaint.getTitle(), null, complaint.getStation(),
+                complaint.getType(), complaint.getStatus(), null, complaint.getCreatedAt(),
+                complaint.getCreatedBy() == null ? null : complaint.getCreatedBy().getId(),
+                complaint.getUpdatedAt()
+        );
+    }
+
     public static ComplaintResponse from(Complaint complaint) {
         return new ComplaintResponse(
                 complaint.getId(),
@@ -32,7 +42,7 @@ public class ComplaintResponse {
                 complaint.getStatus(),
                 complaint.getReplyContent(),
                 complaint.getCreatedAt(),
-                complaint.getCreatedBy(),
+                complaint.getCreatedBy() == null ? null : complaint.getCreatedBy().getId(),
                 complaint.getUpdatedAt()
         );
     }

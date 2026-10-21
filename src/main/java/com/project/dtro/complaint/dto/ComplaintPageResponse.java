@@ -18,7 +18,7 @@ public class ComplaintPageResponse {
 
     public static ComplaintPageResponse from(Page<Complaint> page) {
         return new ComplaintPageResponse(
-                page.getContent().stream().map(ComplaintResponse::from).toList(),
+                page.getContent().stream().map(ComplaintResponse::summary).toList(),
                 page.getNumber(),
                 page.getSize(),
                 page.getTotalElements(),
