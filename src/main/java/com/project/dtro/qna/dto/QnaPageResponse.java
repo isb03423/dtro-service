@@ -18,7 +18,7 @@ public class QnaPageResponse {
 
     public static QnaPageResponse from(Page<Qna> page) {
         return new QnaPageResponse(
-                page.getContent().stream().map(QnaResponse::from).toList(),
+                page.getContent().stream().map(QnaResponse::summary).toList(),
                 page.getNumber(),
                 page.getSize(),
                 page.getTotalElements(),

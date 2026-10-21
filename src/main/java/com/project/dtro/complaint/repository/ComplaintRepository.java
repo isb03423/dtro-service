@@ -10,6 +10,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface ComplaintRepository extends JpaRepository<Complaint, Long> {
+    long countByStatus(ComplaintStatus status);
+
     @Query("""
             SELECT c FROM Complaint c
             WHERE (:keyword IS NULL OR c.title = :keyword OR c.content = :keyword)

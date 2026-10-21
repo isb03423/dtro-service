@@ -10,6 +10,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface QnaRepository extends JpaRepository<Qna, Long> {
+    long countByStatus(QnaStatus status);
+
     @Query("""
             SELECT c FROM Qna c
             WHERE (:keyword IS NULL OR c.title = :keyword OR c.content = :keyword)

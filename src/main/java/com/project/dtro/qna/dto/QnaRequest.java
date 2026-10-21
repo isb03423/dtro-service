@@ -20,7 +20,6 @@ public class QnaRequest {
     @NotNull(message = "질문 유형을 선택하세요.")
     private QnaType type;
 
-    @NotBlank(message = "역 이름을 입력하세요")
     @Size(max = 30)
     private String station;
 

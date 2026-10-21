@@ -1,22 +1,15 @@
 package com.project.dtro.qna.domain;
 
+import com.project.dtro.common.domain.AuditEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "qnas")
-@EntityListeners(AuditingEntityListener.class)
 @Getter
 @NoArgsConstructor
-public class Qna {
+public class Qna extends AuditEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,22 +36,6 @@ public class Qna {
     @Column(name = "reply_content", columnDefinition = "TEXT")
     private String replyContent;
 
-    @CreatedDate
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @CreatedBy
-    @Column(name = "created_by", nullable = false, updatable = false)
-    private Long createdBy;
-
-    @LastModifiedDate
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
-    @LastModifiedBy
-    @Column(name = "updated_by")
-    private Long updatedBy;
-
     public Qna(String title, String content, String station, QnaType type) {
         this.title = title;
         this.content = content;
@@ -67,6 +44,9 @@ public class Qna {
     }
 
     public void update(String title, String content, String station, QnaType type) {
+        if (this.status != QnaStatus.PENDING) {
+            throw new IllegalStateException("답변 대기 상태에서만 질문을 수정할 수 있습니다.");
+        }
         this.title = title;
         this.content = content;
         this.station = station;
