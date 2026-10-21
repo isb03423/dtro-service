@@ -97,7 +97,7 @@ public class QnaService {
         Qna qna = new Qna(
                 request.getTitle().trim(),
                 request.getContent().trim(),
-                request.getStation().trim(),
+                request.getStation() == null ? "" : request.getStation().trim(),
                 request.getType()
         );
         qnaRepository.saveAndFlush(qna);
@@ -115,7 +115,7 @@ public class QnaService {
         qna.update(
                 request.getTitle().trim(),
                 request.getContent().trim(),
-                request.getStation().trim(),
+                request.getStation() == null ? "" : request.getStation().trim(),
                 request.getType()
         );
         qnaRepository.flush();
