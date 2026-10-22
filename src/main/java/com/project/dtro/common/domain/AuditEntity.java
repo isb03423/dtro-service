@@ -46,6 +46,14 @@ public abstract class AuditEntity {
         return updatedBy == null ? null : updatedBy.getName();
     }
 
+    public String getModifiedByName() {
+        if (updatedBy == null || updatedAt == null
+                || (createdAt != null && !updatedAt.isAfter(createdAt))) {
+            return null;
+        }
+        return updatedBy.getName();
+    }
+
     protected void markUpdatedBy(Member member) {
         this.updatedBy = member;
     }

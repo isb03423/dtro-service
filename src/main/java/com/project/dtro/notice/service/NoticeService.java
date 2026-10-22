@@ -6,7 +6,9 @@ import com.project.dtro.notice.domain.Notice; // 도메인이 아닌 entity 패�
 import com.project.dtro.notice.repository.NoticeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.stereotype.Service;
@@ -24,7 +26,9 @@ public class NoticeService {
 
     public Page<NoticeResponse> getNoticeList(Boolean publicYn, String keyword, String searchType, Pageable pageable) {
         String normalizedSearchType = normalizeSearchType(searchType);
-        Page<Notice> noticePage = noticeRepository.findByFilters(publicYn, keyword, normalizedSearchType, pageable);
+        Pageable sortedPageable = pageable.getSort().isSorted() ? pageable
+                : PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "noticeId"));
+        Page<Notice> noticePage = noticeRepository.findByFilters(publicYn, keyword, normalizedSearchType, sortedPageable);
         return noticePage.map(NoticeResponse::from);
     }
 
