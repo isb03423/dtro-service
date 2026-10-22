@@ -36,6 +36,14 @@ public class ResourceFileStorage {
         return target;
     }
 
+    public Long size(String storedPath) {
+        try {
+            return Files.size(resolve(storedPath));
+        } catch (IOException error) {
+            return null;
+        }
+    }
+
     public void delete(String storedPath) {
         try {
             Files.deleteIfExists(resolve(storedPath));

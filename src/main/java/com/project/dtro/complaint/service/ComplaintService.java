@@ -9,6 +9,7 @@ import com.project.dtro.complaint.dto.ComplaintOverviewResponse;
 import com.project.dtro.complaint.dto.ComplaintRequest;
 import com.project.dtro.complaint.dto.ComplaintResponse;
 import com.project.dtro.complaint.repository.ComplaintRepository;
+import com.project.dtro.station.repository.StationRepository;
 import lombok.RequiredArgsConstructor;
 import com.project.dtro.security.MemberPrincipal;
 import org.springframework.security.access.AccessDeniedException;
@@ -32,6 +33,7 @@ public class ComplaintService {
             Set.of("id", "title", "station", "type", "status", "createdAt", "updatedAt");
 
     private final ComplaintRepository complaintRepository;
+    private final StationRepository stationRepository;
 
     // 집계와 최근 5건만 조회하며 전체 목록을 메모리에 적재하지 않는다.
     public ComplaintOverviewResponse getOverview() {
@@ -60,11 +62,7 @@ public class ComplaintService {
             throw new IllegalArgumentException("페이지 조건이 올바르지 않습니다.");
         }
 
-        if (sort == null) {
-            throw new IllegalArgumentException("정렬 조건이 올바르지 않습니다.");
-        }
-
-        String[] parts = sort.split(",", -1);
+        String[] parts = (sort == null || sort.isBlank() ? "id,desc" : sort).split(",", -1);
         if (parts.length != 2) {
             throw new IllegalArgumentException("정렬 조건이 올바르지 않습니다.");
         }
@@ -89,7 +87,7 @@ public class ComplaintService {
         MemberPrincipal member = currentMember();
         Complaint complaint = find(id);
         checkReadAccess(complaint, member);
-        return ComplaintResponse.from(complaint);
+        return toResponse(complaint);
     }
 
     @Transactional
@@ -101,7 +99,7 @@ public class ComplaintService {
                 request.getType()
         );
         complaintRepository.saveAndFlush(complaint);
-        return ComplaintResponse.from(complaint);
+        return toResponse(complaint);
     }
 
     @Transactional
@@ -119,7 +117,7 @@ public class ComplaintService {
                 request.getType()
         );
         complaintRepository.flush();
-        return ComplaintResponse.from(complaint);
+        return toResponse(complaint);
     }
 
     @Transactional
@@ -130,7 +128,7 @@ public class ComplaintService {
         }
         Complaint complaint = find(id);
         complaint.complaintAnswered(request.getReplyContent().trim());
-        return ComplaintResponse.from(complaint);
+        return toResponse(complaint);
     }
 
     @Transactional
@@ -150,6 +148,11 @@ public class ComplaintService {
 
     private String blankToNull(String text) {
         return text == null || text.isBlank() ? null : text.trim();
+    }
+
+    private ComplaintResponse toResponse(Complaint complaint) {
+        return ComplaintResponse.from(complaint,
+                stationRepository.findLineCodesByStationName(complaint.getStation()));
     }
 
     private Complaint find(Long id) {
