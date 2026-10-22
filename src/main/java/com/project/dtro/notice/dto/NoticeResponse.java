@@ -15,6 +15,9 @@ public class NoticeResponse {
     private final boolean importantYn;
     private final boolean publicYn;
     private final LocalDateTime createdAt;
+    private final String createdByName;
+    private final LocalDateTime updatedAt;
+    private final String updatedByName;
 
     public static NoticeResponse from(Notice notice) {
         return new NoticeResponse(
@@ -23,7 +26,10 @@ public class NoticeResponse {
                 notice.getContent(),
                 Boolean.TRUE.equals(notice.getImportantYn()),
                 Boolean.TRUE.equals(notice.getPublicYn()),
-                notice.getCreatedAt()
+                notice.getCreatedAt(),
+                notice.getCreatedByName(),
+                notice.getUpdatedAt(),
+                notice.getModifiedByName()
         );
     }
 }

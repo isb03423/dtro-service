@@ -8,7 +8,9 @@ import com.project.dtro.resource.repository.ResourceRepository;
 import org.springframework.web.multipart.MultipartFile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +30,9 @@ public class ResourceService {
 
     public Page<ResourceResponse> getResourceList(Boolean publicYn, String keyword, String searchType, Pageable pageable) {
         String normalizedSearchType = normalizeSearchType(searchType);
-        return resourceRepository.findByFilters(publicYn, keyword, normalizedSearchType, pageable).map(ResourceResponse::from);
+        Pageable sortedPageable = pageable.getSort().isSorted() ? pageable
+                : PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "resourceId"));
+        return resourceRepository.findByFilters(publicYn, keyword, normalizedSearchType, sortedPageable).map(ResourceResponse::from);
     }
 
     private String normalizeSearchType(String searchType) {
