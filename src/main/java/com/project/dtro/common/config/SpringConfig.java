@@ -60,7 +60,7 @@ public class SpringConfig {
                                 // 최고관리자
                                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                                 // 로그인 필요
-                                .requestMatchers("/api/members/me", "/api/boards/**").authenticated()
+                                .requestMatchers("/api/members/me", "/api/members/me/**", "/api/boards/**").authenticated()
                                 // 나머지 요청
                                 .anyRequest().permitAll()
                 )
