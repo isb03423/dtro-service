@@ -14,11 +14,16 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -47,7 +52,7 @@ public class ResourceService {
         if (!canViewPrivate && !Boolean.TRUE.equals(resource.getPublicYn())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "비공개 자료는 관리자만 확인할 수 있습니다.");
         }
-        return ResourceResponse.from(resource);
+        return ResourceResponse.from(resource, attachment -> fileStorage.size(attachment.getFilePath()));
     }
 
     public Attachment getAttachment(Long resourceId, Long attachmentId, boolean canViewPrivate) {
@@ -83,7 +88,8 @@ public class ResourceService {
                             .build());
                 }
             }
-            return ResourceResponse.from(resourceRepository.saveAndFlush(resource));
+            return ResourceResponse.from(resourceRepository.saveAndFlush(resource),
+                    attachment -> fileStorage.size(attachment.getFilePath()));
         } catch (IOException | RuntimeException error) {
             storedPaths.forEach(fileStorage::delete);
             throw error instanceof RuntimeException runtimeError
@@ -102,7 +108,21 @@ public class ResourceService {
         Resource resource = resourceRepository.findById(resourceId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 자료입니다. ID: " + resourceId));
 
+        Set<Long> removalIds = new HashSet<>(request.getRemovedAttachmentIds() == null
+                ? List.of() : request.getRemovedAttachmentIds());
+        Set<Long> existingIds = resource.getAttachments().stream()
+                .map(Attachment::getAttachmentId)
+                .collect(Collectors.toSet());
+        if (!existingIds.containsAll(removalIds)) {
+            throw new IllegalArgumentException("삭제할 첨부 파일을 찾을 수 없습니다.");
+        }
+
         resource.update(request.getTitle(), request.getContent(), request.getPublicYn());
+        List<String> removedPaths = resource.getAttachments().stream()
+                .filter(attachment -> removalIds.contains(attachment.getAttachmentId()))
+                .map(Attachment::getFilePath)
+                .toList();
+        resource.getAttachments().removeIf(attachment -> removalIds.contains(attachment.getAttachmentId()));
         List<String> storedPaths = new ArrayList<>();
         try {
             if (files != null) {
@@ -116,7 +136,17 @@ public class ResourceService {
                             .build());
                 }
             }
-            return ResourceResponse.from(resourceRepository.saveAndFlush(resource));
+            ResourceResponse response = ResourceResponse.from(resourceRepository.saveAndFlush(resource),
+                    attachment -> fileStorage.size(attachment.getFilePath()));
+            if (!removedPaths.isEmpty()) {
+                TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                    @Override
+                    public void afterCommit() {
+                        removedPaths.forEach(fileStorage::delete);
+                    }
+                });
+            }
+            return response;
         } catch (IOException | RuntimeException error) {
             storedPaths.forEach(fileStorage::delete);
             throw error instanceof RuntimeException runtimeError
