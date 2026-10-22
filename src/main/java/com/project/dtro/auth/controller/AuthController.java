@@ -3,6 +3,7 @@ package com.project.dtro.auth.controller;
 import com.project.dtro.common.response.ApiResponse;
 import com.project.dtro.user.domain.Member;
 import com.project.dtro.user.repository.MemberRepository;
+import com.project.dtro.user.dto.MemberResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -36,8 +37,7 @@ public class AuthController {
     public ApiResponse<MemberResponse> me(Authentication authentication) {
         Member member = members.findByUserid(authentication.getName())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
-        return ApiResponse.ok(new MemberResponse(member.getId(), member.getUserid(),
-                member.getName(), member.getRole().name()));
+        return ApiResponse.ok(MemberResponse.from(member));
     }
 
     @Getter
@@ -47,12 +47,4 @@ public class AuthController {
         private final String token;
     }
 
-    @Getter
-    @AllArgsConstructor
-    public static class MemberResponse {
-        private final Long id;
-        private final String userid;
-        private final String name;
-        private final String role;
-    }
 }

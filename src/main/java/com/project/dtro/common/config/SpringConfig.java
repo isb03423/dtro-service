@@ -1,6 +1,9 @@
 package com.project.dtro.common.config;
 
+import com.project.dtro.security.MemberSessionRefreshFilter;
+import com.project.dtro.user.repository.MemberRepository;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -9,6 +12,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 
 @Configuration
 @EnableMethodSecurity
@@ -21,8 +25,9 @@ public class SpringConfig {
     }
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain securityFilterChain(HttpSecurity http, MemberRepository members) throws Exception {
         http
+                .addFilterBefore(new MemberSessionRefreshFilter(members), AuthorizationFilter.class)
                 // CORS 설정
                 .cors(Customizer.withDefaults())
                 // Vue SPA용 CSRF 보호
@@ -38,7 +43,7 @@ public class SpringConfig {
                                         "/",
                                         "/api/auth/login",
                                         "/api/auth/csrf",
-//                                "/api/members",
+                                        "/api/members",
                                         "/css/**",
                                         "/js/**",
                                         "/images/**",
@@ -46,12 +51,16 @@ public class SpringConfig {
                                         "/favicon.ico"
                                 ).permitAll()
                                 .requestMatchers("/api/auth/me").authenticated()
-                                .requestMatchers("/api/trains", "/api/trains/**")
+                                .requestMatchers("/api/v1/customer-service-overview").hasRole("ADMIN")
+                                .requestMatchers("/api/trains", "/api/trains/**", "/api/train-overview")
                                 .hasAnyRole("TRAIN_MANAGER", "ADMIN")
+                                // 목록은 공개하고 개별 글의 접근은 서비스에서 작성자/관리자를 확인한다.
+                                .requestMatchers(HttpMethod.GET, "/api/complaints", "/api/qnas").permitAll()
+                                .requestMatchers("/api/complaints/**", "/api/qnas/**").authenticated()
                                 // 최고관리자
                                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                                 // 로그인 필요
-                                .requestMatchers("/api/members/me", "/api/boards/**").authenticated()
+                                .requestMatchers("/api/members/me", "/api/members/me/**", "/api/boards/**").authenticated()
                                 // 나머지 요청
                                 .anyRequest().permitAll()
                 )
