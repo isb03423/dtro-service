@@ -72,4 +72,13 @@ public class ComplaintController {
                 complaintService.answer(id, request)
         );
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/{id}/answer")
+    public ApiResponse<ComplaintResponse> updateAnswer(
+            @PathVariable Long id,
+            @Valid @RequestBody ComplaintAnswerRequest request
+    ) {
+        return ApiResponse.ok(complaintService.updateAnswer(id, request));
+    }
 }

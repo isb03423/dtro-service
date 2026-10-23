@@ -132,6 +132,18 @@ public class ComplaintService {
     }
 
     @Transactional
+    public ComplaintResponse updateAnswer(Long id, ComplaintAnswerRequest request) {
+        MemberPrincipal member = currentMember();
+        if (!isAdmin(member)) {
+            throw new AccessDeniedException("관리자만 답변을 수정할 수 있습니다.");
+        }
+        Complaint complaint = find(id);
+        complaint.updateReply(request.getReplyContent().trim());
+        complaintRepository.flush();
+        return toResponse(complaint);
+    }
+
+    @Transactional
     public void delete(Long id) {
         MemberPrincipal member = currentMember();
         Complaint complaint = find(id);
