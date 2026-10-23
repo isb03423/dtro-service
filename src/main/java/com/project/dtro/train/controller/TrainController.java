@@ -23,9 +23,9 @@ import java.util.List;
 public class TrainController {
     private final TrainService service;
 
-    @PostMapping("/search")
+    @GetMapping("/search")
     // 검색 조건으로 열차 목록을 조회한다.
-    public ApiResponse<TrainPageResponse> search(@Valid @RequestBody TrainSearchRequest request) {
+    public ApiResponse<TrainPageResponse> search(@Valid @ModelAttribute TrainSearchRequest request) {
         return ApiResponse.ok(
                 service.search(
                         request.getStatus(),
