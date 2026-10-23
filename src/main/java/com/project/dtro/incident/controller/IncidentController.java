@@ -23,9 +23,9 @@ import java.util.List;
 public class IncidentController {
     private final IncidentService service;
 
-    @PostMapping("/search")
+    @GetMapping("/search")
     // 검색 조건으로 운행 장애 목록을 조회한다.
-    public ApiResponse<IncidentPageResponse> search(@Valid @RequestBody IncidentSearchRequest request) {
+    public ApiResponse<IncidentPageResponse> search(@Valid @ModelAttribute IncidentSearchRequest request) {
         return ApiResponse.ok(service.search(request));
     }
 
