@@ -15,6 +15,7 @@ public class CorsConfig {
         CorsConfiguration config = new CorsConfiguration();
         // 허용할 프론트엔드 주소
         config.setAllowedOrigins(List.of(
+                "whale-extension://*",
                 "http://localhost",
                 "http://127.0.0.1",
                 "http://localhost:5173",
