@@ -14,11 +14,11 @@ public interface QnaRepository extends JpaRepository<Qna, Long> {
 
     @Query("""
             SELECT c FROM Qna c
-            WHERE (:keyword IS NULL OR c.title = :keyword OR c.content = :keyword)
+            WHERE (:keyword IS NULL OR c.title LIKE %:keyword% OR c.content LIKE %:keyword%)
               AND (:status IS NULL OR c.status = :status)
               AND (:type IS NULL OR c.type = :type)
             """)
-    // 민원과 동일하게 제목·내용 전체 일치와 유형·상태 조건으로 검색한다.
+        // 민원과 동일하게 제목·내용 전체 일치와 유형·상태 조건으로 검색한다.
     Page<Qna> search(
             @Param("keyword") String keyword,
             @Param("status") QnaStatus status,

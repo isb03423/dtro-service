@@ -14,7 +14,7 @@ public interface ComplaintRepository extends JpaRepository<Complaint, Long> {
 
     @Query("""
             SELECT c FROM Complaint c
-            WHERE (:keyword IS NULL OR c.title = :keyword OR c.content = :keyword)
+            WHERE (:keyword IS NULL OR c.title LIKE %:keyword% OR c.content LIKE %:keyword%)
               AND (:status IS NULL OR c.status = :status)
               AND (:type IS NULL OR c.type = :type)
             """)
